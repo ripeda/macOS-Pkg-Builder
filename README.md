@@ -2,8 +2,15 @@
 
 Python module for creating macOS packages more easily through native tooling (pkgbuild). Primarily developed as an alternative to [WhiteBox's Packages](http://s.sudre.free.fr/Software/Packages/about.html) for easier CI/CD integration.
 
+* [GitHub](https://github.com/ripeda/macOS-Pkg-Builder)
+* [PyPi](https://pypi.org/project/macos-pkg-builder)
 
 ## Usage
+
+Installation:
+```
+pip3 install macos-pkg-builder
+```
 
 Sample invocation:
 ```py
