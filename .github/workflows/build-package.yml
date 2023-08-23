@@ -41,7 +41,7 @@ jobs:
       - name: Upload Wheel Package
         uses: actions/upload-artifact@v2
         with:
-          name: macos_.whl
+          name: macos_pkg_builder.whl
           path: dist/*.whl
 
       - name: Upload Package to Release
