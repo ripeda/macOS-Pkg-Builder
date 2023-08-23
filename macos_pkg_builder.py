@@ -217,16 +217,16 @@ if __name__ == "__main__":
             pkg_output="Sample-Install.pkg",
             pkg_bundle_id="com.myapp.installer",
             pkg_file_structure={
-                "Samples/MyApp/MyApp.app": "/Applications/MyApp.app",
-                "Samples/MyApp/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
+                ".Samples/MyApp/MyApp.app": "/Applications/MyApp.app",
+                ".Samples/MyApp/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
             },
-            pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
-            pkg_postinstall_script="Samples/MyApp/MyPostinstall.sh",
+            pkg_preinstall_script=".Samples/MyApp/MyPreinstall.sh",
+            pkg_postinstall_script=".Samples/MyApp/MyPostinstall.sh",
         ),
         Packages(
             pkg_output="Sample-Uninstall.pkg",
             pkg_bundle_id="com.myapp.uninstaller",
-            pkg_preinstall_script="Samples/MyUninstaller/MyPreinstall.sh",
+            pkg_preinstall_script=".Samples/MyUninstaller/MyPreinstall.sh",
         ),
     ]
 

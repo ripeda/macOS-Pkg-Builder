@@ -9,6 +9,6 @@ setup(
     description='',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    url='https://github.com/ripeda/Baseline-Builder-Core',
+    url='https://github.com/ripeda/macOS-Pkg-Builder',
     python_requires='>=3.9',
 )
