@@ -54,7 +54,7 @@ jobs:
           file_glob: true
 
       - name: Publish PyPI Package
-        # if: github.event_name == 'release'
+        if: github.event_name == 'release'
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

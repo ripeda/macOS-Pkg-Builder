@@ -11,23 +11,40 @@ import subprocess
 
 from pathlib import Path
 
+
 PKGBUILD = "/usr/bin/pkgbuild"
 
 
 class Packages:
 
     def __init__(self,
-                 pkg_name:               str,
                  pkg_output:             str,
-                 pkg_bundle_id:          str = None,
+                 pkg_bundle_id:          str,
                  pkg_version:            str = "1.0.0",
+                 pkg_install_location:   str = "/",
                  pkg_file_structure:    dict = None,
                  pkg_preinstall_script:  str = None,
                  pkg_postinstall_script: str = None,
-                 pkg_install_location:   str = "/",
-
                 ) -> None:
         """
+        pkg_output:             Path to where the package will be saved.
+        pkg_bundle_id:          Bundle ID of the package.
+        pkg_version:            Version of the package.
+                                Default: 1.0.0
+        pkg_install_location:   Location where the package will be installed.
+                                Default: /
+                                Optional.
+        pkg_file_structure:     File structure of the package.
+                                Default: None
+                                Configured as a dictionary, where the key is the source file and the value is the destination.
+                                Optional if preinstall or postinstall scripts are provided.
+        pkg_preinstall_script:  Path to the preinstall script.
+                                Default: None
+                                Optional.
+        pkg_postinstall_script: Path to the postinstall script.
+                                Default: None
+                                Optional.
+
         File Structure:
             {
                 # Source: Destination
@@ -41,8 +58,7 @@ class Packages:
         if all([pkg_file_structure is None, pkg_preinstall_script is None, pkg_postinstall_script is None]):
             raise Exception("Cannot build a package!")
 
-        self._pkg_project_name       = pkg_name
-        self._pkg_project_identifier = pkg_bundle_id if pkg_bundle_id is not None else f"com.{pkg_name.lower()}"
+        self._pkg_project_identifier = pkg_bundle_id
         self._pkg_project_version    = pkg_version
         self._pkg_install_location   = pkg_install_location
         self._pkg_output             = pkg_output
@@ -63,7 +79,6 @@ class Packages:
         Adjusts naming and permissions of scripts to match pkgbuild requirements.
         """
 
-
         if self._pkg_preinstall_script is not None:
             print(f"Copying {self._pkg_preinstall_script} to {self._pkg_scripts_directory.joinpath('preinstall')}")
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
@@ -82,20 +97,22 @@ class Packages:
         Adjusts file structure to match pkgbuild requirements.
         """
 
-        if self._pkg_file_structure is not None:
-            print(f"Copying files to {self._pkg_build_directory}")
-            self._pkg_build_directory.mkdir(parents=True, exist_ok=True)
+        if self._pkg_file_structure is None:
+            return
 
-            for source, destination in self._pkg_file_structure.items():
-                if not Path(source).exists():
-                    raise Exception(f"Source file does not exist: {source}")
+        print(f"Copying files to {self._pkg_build_directory}")
+        self._pkg_build_directory.mkdir(parents=True, exist_ok=True)
 
-                internal_destination = Path(f"{self._pkg_build_directory}{destination}")
+        for source, destination in self._pkg_file_structure.items():
+            if not Path(source).exists():
+                raise Exception(f"Source file does not exist: {source}")
 
-                if not internal_destination.parent.exists():
-                    internal_destination.parent.mkdir(parents=True, exist_ok=True)
+            internal_destination = Path(f"{self._pkg_build_directory}{destination}")
 
-                subprocess.run(["cp", "-R", source, internal_destination])
+            if not internal_destination.parent.exists():
+                internal_destination.parent.mkdir(parents=True, exist_ok=True)
+
+            subprocess.run(["cp", "-R", source, internal_destination])
 
 
     def _generate_pkg_arguments(self) -> list:
@@ -136,7 +153,7 @@ class Packages:
         return True
 
 
-    def build(self) -> None:
+    def build(self) -> bool:
         """
         Build the application package.
         """
@@ -148,23 +165,34 @@ class Packages:
         self._prepare_file_structure()
         if self._build_pkg() is False:
             print("Package build failed.")
-            return
+            return False
 
         subprocess.run(["cp", self._pkg_build_directory.parent / self._pkg_file_name, self._pkg_output])
         print(f"Package built: {self._pkg_output}")
+        return True
 
 
 if __name__ == "__main__":
-    test_suite = Packages(
-        pkg_name="MyApp-Installer",
-        pkg_output="Sample.pkg",
-        pkg_bundle_id="com.myapp.installer",
-        pkg_file_structure={
-            "Samples/MyApp/MyApp.app": "/Applications/MyApp.app",
-            "Samples/MyApp/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
-        },
-        pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
-        pkg_postinstall_script="Samples/MyApp/MyPostinstall.sh",
-    )
 
-    test_suite.build()
+    test_suites = [
+        Packages(
+            pkg_output="Sample.pkg",
+            pkg_bundle_id="com.myapp.installer",
+            pkg_file_structure={
+                "Samples/MyApp/MyApp.app": "/Applications/MyApp.app",
+                "Samples/MyApp/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
+            },
+            pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
+            pkg_postinstall_script="Samples/MyApp/MyPostinstall.sh",
+        ),
+        Packages(
+            pkg_output="Sample.pkg",
+            pkg_bundle_id="com.myapp.uninstaller",
+            pkg_preinstall_script="Samples/MyUninstaller/MyPreinstall.sh",
+        ),
+    ]
+
+    for test_suite in test_suites:
+        if test_suite.build() is False:
+            print("Package build failed.")
+            exit(1)
