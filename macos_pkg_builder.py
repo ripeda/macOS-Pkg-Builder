@@ -129,7 +129,6 @@ class Packages:
         Build the application package.
         """
         result = subprocess.run(self._generate_pkg_arguments(), capture_output=True)
-        input("Press enter to continue...")
         if result.returncode != 0:
             print(result.stderr.decode("utf-8"))
             return False
