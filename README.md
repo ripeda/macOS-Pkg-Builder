@@ -8,7 +8,7 @@ Python module for creating macOS packages more easily through native tooling (pk
 ```py
 import macos_pkg_builder
 
-pkg_obj = Packages(
+pkg_obj = macos_pkg_builder.Packages(
     pkg_name="MyApp-Installer",
     pkg_output="Sample.pkg",
     pkg_bundle_id="com.myapp.installer",
