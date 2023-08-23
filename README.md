@@ -10,7 +10,6 @@ Sample invocation:
 import macos_pkg_builder
 
 pkg_obj = macos_pkg_builder.Packages(
-    pkg_name="MyApp-Installer",
     pkg_output="Sample.pkg",
     pkg_bundle_id="com.myapp.installer",
     pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
@@ -39,9 +38,13 @@ Format of `Packages` constructor:
                             Default: /
                             Optional.
 
+    pkg_allow_relocation:   Allow the embedded application to be installed where the user has an existing copy (outside expected install location)
+                            Requires a valid bundle to be provided in 'pkg_file_structure' (ex. app, plugin, etc.)
+                            Default: True
+
     pkg_file_structure:     File structure of the package.
-                            Default: None
                             Configured as a dictionary, where the key is the source file and the value is the destination.
+                            Default: None
                             Optional if preinstall or postinstall scripts are provided.
 
     pkg_preinstall_script:  Path to the preinstall script.
