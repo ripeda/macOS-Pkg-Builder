@@ -28,19 +28,25 @@ class Packages:
                 ) -> None:
         """
         pkg_output:             Path to where the package will be saved.
+
         pkg_bundle_id:          Bundle ID of the package.
+
         pkg_version:            Version of the package.
                                 Default: 1.0.0
+
         pkg_install_location:   Location where the package will be installed.
                                 Default: /
                                 Optional.
+
         pkg_file_structure:     File structure of the package.
                                 Default: None
                                 Configured as a dictionary, where the key is the source file and the value is the destination.
                                 Optional if preinstall or postinstall scripts are provided.
+
         pkg_preinstall_script:  Path to the preinstall script.
                                 Default: None
                                 Optional.
+
         pkg_postinstall_script: Path to the postinstall script.
                                 Default: None
                                 Optional.
