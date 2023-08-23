@@ -15,10 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set Python 3.6
+      - name: Set Python 3
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.9
 
       - name: Set up Python 3 libraries
         run: pip3 install setuptools wheel twine build
@@ -54,7 +54,7 @@ jobs:
           file_glob: true
 
       - name: Publish PyPI Package
-        if: github.event_name == 'release'
+        # if: github.event_name == 'release'
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
