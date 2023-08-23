@@ -1,0 +1,61 @@
+name: CI - Build Python Package
+
+on:
+  push:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build Python Package
+    runs-on: macos-latest
+    env:
+      branch: ${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Set up Python 3 libraries
+        run: pip3 install setuptools wheel twine build
+
+      - name: Validate Library (py3)
+        run: python3 py_sip_xnu.py
+
+      - name: Validate setup.py
+        run: python3 setup.py check -m -s
+
+      - name: Build Package (py3)
+        run: python3 -m build --wheel
+
+      - name: Test Package (py3)
+        run: python3 setup.py test
+
+      - name: Validate twine
+        run: twine check dist/*
+
+      - name: Upload Wheel Package
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos_.whl
+          path: dist/*.whl
+
+      - name: Upload Package to Release
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/*
+          tag: ${{ github.ref }}
+          file_glob: true
+
+      - name: Publish PyPI Package
+        if: github.event_name == 'release'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: twine upload dist/*
