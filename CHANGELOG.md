@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 1.0.2
+
 ## 1.0.1
 - Resolve import errors from PyPi
 
