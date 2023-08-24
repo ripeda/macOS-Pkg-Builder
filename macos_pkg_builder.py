@@ -66,10 +66,6 @@ class Packages:
             }
         """
 
-        # If all are None, raise an exception.
-        if all([pkg_file_structure is None, pkg_preinstall_script is None, pkg_postinstall_script is None]):
-            raise Exception("Cannot build a package!")
-
         self._pkg_project_identifier = pkg_bundle_id
         self._pkg_project_version    = pkg_version
         self._pkg_install_location   = pkg_install_location
@@ -195,6 +191,10 @@ class Packages:
         """
         Build the application package.
         """
+
+        if all([self._pkg_file_structure is None, self._pkg_preinstall_script is None, self._pkg_postinstall_script is None]):
+            raise Exception("Cannot build a package!")
+
         if Path(self._pkg_output).exists():
             print(f"Removing existing package: {self._pkg_output}")
             Path(self._pkg_output).unlink()
