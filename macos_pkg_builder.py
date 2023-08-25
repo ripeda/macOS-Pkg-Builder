@@ -205,6 +205,9 @@ class Packages:
             print("Package build failed.")
             return False
 
+        if not Path(self._pkg_output).parent.exists():
+            Path(self._pkg_output).mkdir(parents=True, exist_ok=True)
+
         subprocess.run(["cp", self._pkg_build_directory.parent / self._pkg_file_name, self._pkg_output])
         print(f"Package built: {self._pkg_output}")
         return True
