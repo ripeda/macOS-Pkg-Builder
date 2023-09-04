@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 1.0.3
+
 ## 1.0.2
 - Create output directory if it doesn't exist
 
