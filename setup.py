@@ -10,5 +10,6 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/ripeda/macOS-Pkg-Builder',
-    python_requires='>=3.9',
+    python_requires='>=3.6',
+    py_modules=["macos_pkg_builder"],
 )

@@ -62,6 +62,10 @@ Format of `Packages` constructor:
                             Default: None
                             Optional.
 
+    pkg_script_resources:   List of additional scripts to be included in the package.
+                            This is primarily for pre/postinstall scripts that need additional resources present next to them.
+                            ex. Shipping 'desktoppr' with a wallpaper, and have the postinstall script set the wallpaper.
+
     File Structure:
         {
             # Source: Destination
@@ -70,4 +74,38 @@ Format of `Packages` constructor:
 
         }
 """
+```
+
+## Additional Supported Use Cases
+
+#### Building single-use packages that don't leave tooling behind
+
+Useful for scenarios where you need to ship additional tools, but don't want to run any additional cleanup scripts to remove them.
+
+Below is how to set a wallpaper using Scripting OS X's [desktoppr](https://github.com/scriptingosx/desktoppr):
+
+```py
+Packages(
+    pkg_output="Sample-Wallpaper.pkg",
+    pkg_bundle_id="com.myapp.wallpaper",
+    pkg_file_structure={
+        "Samples/MyWallpaperConfigurator/Snow Leopard Server.jpg": "/Library/Desktop Pictures/Snow Leopard Server.jpg",
+    },
+    pkg_preinstall_script="Samples/MyWallpaperConfigurator/PrepareDirectory.sh",
+    pkg_postinstall_script="Samples/MyWallpaperConfigurator/SetWallpaper.sh",
+    pkg_script_resources=[
+        "Samples/MyWallpaperConfigurator/desktoppr",
+    ],
+),
+```
+
+#### Building a simple uninstaller
+
+Useful for when you have a single script you need to execute to remove your application:
+```py
+Packages(
+    pkg_output="Sample-Uninstall.pkg",
+    pkg_bundle_id="com.myapp.uninstaller",
+    pkg_preinstall_script="Samples/MyUninstaller/MyPreinstall.sh",
+),
 ```

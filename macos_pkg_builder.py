@@ -27,6 +27,7 @@ class Packages:
                  pkg_file_structure:     dict = None,
                  pkg_preinstall_script:   str = None,
                  pkg_postinstall_script:  str = None,
+                 pkg_script_resources:   list = None,
                 ) -> None:
         """
         pkg_output:             Path to where the package will be saved.
@@ -57,6 +58,10 @@ class Packages:
                                 Default: None
                                 Optional.
 
+        pkg_script_resources:   List of additional scripts to be included in the package.
+                                This is primarily for pre/postinstall scripts that need additional resources present next to them.
+                                ex. Shipping 'desktoppr' with a wallpaper, and have the postinstall script set the wallpaper.
+
         File Structure:
             {
                 # Source: Destination
@@ -75,6 +80,7 @@ class Packages:
         self._pkg_postinstall_script = pkg_postinstall_script
         self._pkg_file_name          = Path(self._pkg_output).name
         self._pkg_allow_relocation   = pkg_allow_relocation
+        self._pkg_script_resources   = pkg_script_resources
 
         self._pkg_temp_directory     = tempfile.TemporaryDirectory()
         self._pkg_temp_directory     = Path(self._pkg_temp_directory.name)
@@ -97,6 +103,11 @@ class Packages:
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
             subprocess.run(["cp", self._pkg_postinstall_script, self._pkg_scripts_directory.joinpath("postinstall")])
             subprocess.run(["chmod", "+x", self._pkg_scripts_directory.joinpath("postinstall")])
+
+        if self._pkg_script_resources is not None:
+            for resources in self._pkg_script_resources:
+                subprocess.run(["cp", resources, self._pkg_scripts_directory])
+                subprocess.run(["chmod", "+x", self._pkg_scripts_directory.joinpath(Path(resources).name)])
 
 
     def _prepare_file_structure(self) -> None:
@@ -220,16 +231,28 @@ if __name__ == "__main__":
             pkg_output="Sample-Install.pkg",
             pkg_bundle_id="com.myapp.installer",
             pkg_file_structure={
-                ".Samples/MyApp/MyApp.app": "/Applications/MyApp.app",
-                ".Samples/MyApp/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
+                "Samples/MyApp/MyApp.app": "/Applications/MyApp.app",
+                "Samples/MyApp/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
             },
-            pkg_preinstall_script=".Samples/MyApp/MyPreinstall.sh",
-            pkg_postinstall_script=".Samples/MyApp/MyPostinstall.sh",
+            pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
+            pkg_postinstall_script="Samples/MyApp/MyPostinstall.sh",
         ),
         Packages(
             pkg_output="Sample-Uninstall.pkg",
             pkg_bundle_id="com.myapp.uninstaller",
-            pkg_preinstall_script=".Samples/MyUninstaller/MyPreinstall.sh",
+            pkg_preinstall_script="Samples/MyUninstaller/MyPreinstall.sh",
+        ),
+        Packages(
+            pkg_output="Sample-Wallpaper.pkg",
+            pkg_bundle_id="com.myapp.wallpaper",
+            pkg_file_structure={
+                "Samples/MyWallpaperConfigurator/Snow Leopard Server.jpg": "/Library/Desktop Pictures/Snow Leopard Server.jpg",
+            },
+            pkg_preinstall_script="Samples/MyWallpaperConfigurator/PrepareDirectory.sh",
+            pkg_postinstall_script="Samples/MyWallpaperConfigurator/SetWallpaper.sh",
+            pkg_script_resources=[
+                "Samples/MyWallpaperConfigurator/desktoppr",
+            ],
         ),
     ]
 
