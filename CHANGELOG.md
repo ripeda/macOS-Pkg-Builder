@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 1.0.4
+
 ## 1.0.3
 - Add support for bundling additional resources for pre/postinstall scripts to access
   - Files to be defined via new `pkg_script_resources` parameter
