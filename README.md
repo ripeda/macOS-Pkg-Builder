@@ -66,6 +66,9 @@ Format of `Packages` constructor:
                             This is primarily for pre/postinstall scripts that need additional resources present next to them.
                             ex. Shipping 'desktoppr' with a wallpaper, and have the postinstall script set the wallpaper.
 
+    pkg_signing_identity:   Signing identity to use when signing the package.
+                            If missing, no signing will be performed.
+
     File Structure:
         {
             # Source: Destination

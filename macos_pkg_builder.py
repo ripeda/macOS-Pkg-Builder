@@ -13,7 +13,9 @@ import subprocess
 from pathlib import Path
 
 
-PKGBUILD = "/usr/bin/pkgbuild"
+PKGBUILD:    str = "/usr/bin/pkgbuild"
+PRODUCTSIGN: str = "/usr/bin/productsign"
+SECURITY:    str = "/usr/bin/security"
 
 
 class Packages:
@@ -28,6 +30,7 @@ class Packages:
                  pkg_preinstall_script:   str = None,
                  pkg_postinstall_script:  str = None,
                  pkg_script_resources:   list = None,
+                 pkg_signing_identity:    str = None,
                 ) -> None:
         """
         pkg_output:             Path to where the package will be saved.
@@ -62,6 +65,9 @@ class Packages:
                                 This is primarily for pre/postinstall scripts that need additional resources present next to them.
                                 ex. Shipping 'desktoppr' with a wallpaper, and have the postinstall script set the wallpaper.
 
+        pkg_signing_identity:   Signing identity to use when signing the package.
+                                If missing, no signing will be performed.
+
         File Structure:
             {
                 # Source: Destination
@@ -81,6 +87,7 @@ class Packages:
         self._pkg_file_name          = Path(self._pkg_output).name
         self._pkg_allow_relocation   = pkg_allow_relocation
         self._pkg_script_resources   = pkg_script_resources
+        self._pkg_signing_identity   = pkg_signing_identity
 
         self._pkg_temp_directory     = tempfile.TemporaryDirectory()
         self._pkg_temp_directory     = Path(self._pkg_temp_directory.name)
@@ -198,6 +205,57 @@ class Packages:
         return True
 
 
+    def _is_identity_valid(self) -> bool:
+        """
+        Check if the provided signing identity is valid.
+        """
+        if self._pkg_signing_identity is None:
+            return False
+
+        args = [
+            SECURITY,
+            "find-identity",
+            "-v",
+        ]
+
+        result = subprocess.run(args, capture_output=True)
+        if result.returncode != 0:
+            print(result.stderr.decode("utf-8"))
+            return False
+
+        if self._pkg_signing_identity not in result.stdout.decode("utf-8"):
+            print(f"Signing identity not found: {self._pkg_signing_identity}")
+            return False
+
+        return True
+
+
+    def _sign_pkg(self) -> bool:
+        """
+        Sign application package.
+        """
+        if self._pkg_signing_identity is None:
+            return True
+
+        if self._is_identity_valid() is False:
+            return False
+
+        args = [
+            PRODUCTSIGN,
+            "--sign", self._pkg_signing_identity,
+            self._pkg_output,
+            self._pkg_output + ".signed"
+        ]
+        result = subprocess.run(args, capture_output=True)
+        if result.returncode != 0:
+            print(result.stderr.decode("utf-8"))
+            return False
+
+        # Replace the original package with the signed one.
+        Path(self._pkg_output).unlink()
+        Path(self._pkg_output + ".signed").rename(self._pkg_output)
+
+
     def build(self) -> bool:
         """
         Build the application package.
@@ -214,6 +272,9 @@ class Packages:
         self._prepare_file_structure()
         if self._build_pkg() is False:
             print("Package build failed.")
+            return False
+        if self._sign_pkg() is False:
+            print("Package signing failed.")
             return False
 
         if not Path(self._pkg_output).parent.exists():

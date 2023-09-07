@@ -1,6 +1,8 @@
 # macOS Pkg Builder
 
 ## 1.0.4
+- Add support for pkg signing
+  - Configured via new `pkg_signing_identity` parameter
 
 ## 1.0.3
 - Add support for bundling additional resources for pre/postinstall scripts to access
