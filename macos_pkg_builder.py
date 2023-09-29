@@ -243,8 +243,8 @@ class Packages:
         args = [
             PRODUCTSIGN,
             "--sign", self._pkg_signing_identity,
-            self._pkg_output,
-            self._pkg_output + ".signed"
+            self._pkg_build_directory.parent / self._pkg_file_name,
+            self._pkg_build_directory.parent / Path(self._pkg_file_name + ".signed")
         ]
         result = subprocess.run(args, capture_output=True)
         if result.returncode != 0:
@@ -252,8 +252,9 @@ class Packages:
             return False
 
         # Replace the original package with the signed one.
-        Path(self._pkg_output).unlink()
-        Path(self._pkg_output + ".signed").rename(self._pkg_output)
+        Path(self._pkg_build_directory.parent / self._pkg_file_name).unlink()
+        Path(self._pkg_build_directory.parent / Path(self._pkg_file_name + ".signed")).rename(self._pkg_build_directory.parent / self._pkg_file_name)
+
 
 
     def build(self) -> bool:
