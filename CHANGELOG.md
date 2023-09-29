@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 1.0.6
+
 ## 1.0.5
 - Fix signing issue with `pkg_signing_identity` parameter
 
