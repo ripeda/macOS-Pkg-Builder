@@ -1,6 +1,8 @@
 # macOS Pkg Builder
 
 ## 1.0.6
+- Switch to logging module for printing
+  - To be configured by the calling script
 
 ## 1.0.5
 - Fix signing issue with `pkg_signing_identity` parameter

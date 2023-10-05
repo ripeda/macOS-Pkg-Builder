@@ -6,6 +6,7 @@ macOS Package Builder
 Designed to simplify package creation through native tooling, ex. pkgbuild, productbuild, etc.
 """
 
+import logging
 import tempfile
 import plistlib
 import subprocess
@@ -199,7 +200,7 @@ class Packages:
         """
         result = subprocess.run(self._generate_pkg_arguments(), capture_output=True)
         if result.returncode != 0:
-            print(result.stderr.decode("utf-8"))
+            logging.info(result.stderr.decode("utf-8"))
             return False
 
         return True
@@ -220,11 +221,11 @@ class Packages:
 
         result = subprocess.run(args, capture_output=True)
         if result.returncode != 0:
-            print(result.stderr.decode("utf-8"))
+            logging.info(result.stderr.decode("utf-8"))
             return False
 
         if self._pkg_signing_identity not in result.stdout.decode("utf-8"):
-            print(f"Signing identity not found: {self._pkg_signing_identity}")
+            logging.info(f"Signing identity not found: {self._pkg_signing_identity}")
             return False
 
         return True
@@ -248,7 +249,7 @@ class Packages:
         ]
         result = subprocess.run(args, capture_output=True)
         if result.returncode != 0:
-            print(result.stderr.decode("utf-8"))
+            logging.info(result.stderr.decode("utf-8"))
             return False
 
         # Replace the original package with the signed one.
@@ -266,27 +267,33 @@ class Packages:
             raise Exception("Cannot build a package!")
 
         if Path(self._pkg_output).exists():
-            print(f"Removing existing package: {self._pkg_output}")
+            logging.info(f"Removing existing package: {self._pkg_output}")
             Path(self._pkg_output).unlink()
 
         self._prepare_scripts()
         self._prepare_file_structure()
         if self._build_pkg() is False:
-            print("Package build failed.")
+            logging.info("Package build failed.")
             return False
         if self._sign_pkg() is False:
-            print("Package signing failed.")
+            logging.info("Package signing failed.")
             return False
 
         if not Path(self._pkg_output).parent.exists():
             Path(self._pkg_output).mkdir(parents=True, exist_ok=True)
 
         subprocess.run(["cp", self._pkg_build_directory.parent / self._pkg_file_name, self._pkg_output])
-        print(f"Package built: {self._pkg_output}")
+        logging.info(f"Package built: {self._pkg_output}")
         return True
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="[%(asctime)s] [%(filename)-22s] [%(levelname)-8s] [%(lineno)-3d]: %(message)s",
+        handlers=[logging.StreamHandler()]
+    )
 
     test_suites = [
         Packages(
@@ -320,5 +327,5 @@ if __name__ == "__main__":
 
     for test_suite in test_suites:
         if test_suite.build() is False:
-            print("Package build failed.")
+            logging.info("Package build failed.")
             exit(1)
