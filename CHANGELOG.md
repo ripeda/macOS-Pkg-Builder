@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 1.0.7
+
 ## 1.0.6
 - Switch to logging module for printing
   - To be configured by the calling script
