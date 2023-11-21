@@ -14,9 +14,10 @@ import subprocess
 from pathlib import Path
 
 
-PKGBUILD:    str = "/usr/bin/pkgbuild"
-PRODUCTSIGN: str = "/usr/bin/productsign"
-SECURITY:    str = "/usr/bin/security"
+PKGBUILD:     str = "/usr/bin/pkgbuild"
+PRODUCTBUILD: str = "/usr/bin/productbuild"
+PRODUCTSIGN:  str = "/usr/bin/productsign"
+SECURITY:     str = "/usr/bin/security"
 
 
 class Packages:
@@ -32,6 +33,7 @@ class Packages:
                  pkg_postinstall_script:  str = None,
                  pkg_script_resources:   list = None,
                  pkg_signing_identity:    str = None,
+                 pkg_as_distribution:    bool = False,
                 ) -> None:
         """
         pkg_output:             Path to where the package will be saved.
@@ -69,6 +71,9 @@ class Packages:
         pkg_signing_identity:   Signing identity to use when signing the package.
                                 If missing, no signing will be performed.
 
+        pkg_as_distribution:    Convert the package to a product archive.
+                                Default: False
+
         File Structure:
             {
                 # Source: Destination
@@ -89,6 +94,7 @@ class Packages:
         self._pkg_allow_relocation   = pkg_allow_relocation
         self._pkg_script_resources   = pkg_script_resources
         self._pkg_signing_identity   = pkg_signing_identity
+        self._pkg_as_distribution    = pkg_as_distribution
 
         self._pkg_temp_directory     = tempfile.TemporaryDirectory()
         self._pkg_temp_directory     = Path(self._pkg_temp_directory.name)
@@ -257,6 +263,28 @@ class Packages:
         Path(self._pkg_build_directory.parent / Path(self._pkg_file_name + ".signed")).rename(self._pkg_build_directory.parent / self._pkg_file_name)
 
 
+    def _convert_to_product_archive(self) -> bool:
+        """
+        Convert the package to a product archive.
+        """
+        if self._pkg_as_distribution is False:
+            return True
+
+        args = [
+            PRODUCTBUILD,
+            "--package", self._pkg_build_directory.parent / self._pkg_file_name,
+            self._pkg_build_directory.parent / Path(self._pkg_file_name + ".product")
+        ]
+        result = subprocess.run(args, capture_output=True)
+        if result.returncode != 0:
+            logging.info(result.stderr.decode("utf-8"))
+            return False
+
+        # Replace the original package with the product archive.
+        Path(self._pkg_build_directory.parent / self._pkg_file_name).unlink()
+        Path(self._pkg_build_directory.parent / Path(self._pkg_file_name + ".product")).rename(self._pkg_build_directory.parent / self._pkg_file_name)
+        return True
+
 
     def build(self) -> bool:
         """
@@ -277,6 +305,9 @@ class Packages:
             return False
         if self._sign_pkg() is False:
             logging.info("Package signing failed.")
+            return False
+        if self._convert_to_product_archive() is False:
+            logging.info("Package conversion failed.")
             return False
 
         if not Path(self._pkg_output).parent.exists():
@@ -305,6 +336,7 @@ if __name__ == "__main__":
             },
             pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
             pkg_postinstall_script="Samples/MyApp/MyPostinstall.sh",
+            pkg_as_distribution=True,
         ),
         Packages(
             pkg_output="Sample-Uninstall.pkg",

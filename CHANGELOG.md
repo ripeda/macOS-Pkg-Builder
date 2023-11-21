@@ -1,6 +1,9 @@
 # macOS Pkg Builder
 
 ## 1.0.7
+- Add support for distributing as product archive.
+  - Generated with `productbuild`
+  - Configured via new `pkg_as_distribution` parameter
 
 ## 1.0.6
 - Switch to logging module for printing

@@ -69,6 +69,9 @@ Format of `Packages` constructor:
     pkg_signing_identity:   Signing identity to use when signing the package.
                             If missing, no signing will be performed.
 
+    pkg_as_distribution:    Convert the package to a product archive.
+                            Default: False
+
     File Structure:
         {
             # Source: Destination
