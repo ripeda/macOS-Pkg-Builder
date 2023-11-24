@@ -1,5 +1,9 @@
 # macOS Pkg Builder
 
+## 1.0.8
+- Add support for signing distribution archive
+- Resolve missing return statement in `_sign_pkg()`
+
 ## 1.0.7
 - Add support for distributing as product archive.
   - Generated with `productbuild`

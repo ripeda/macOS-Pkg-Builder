@@ -262,6 +262,8 @@ class Packages:
         Path(self._pkg_build_directory.parent / self._pkg_file_name).unlink()
         Path(self._pkg_build_directory.parent / Path(self._pkg_file_name + ".signed")).rename(self._pkg_build_directory.parent / self._pkg_file_name)
 
+        return True
+
 
     def _convert_to_product_archive(self) -> bool:
         """
@@ -283,7 +285,8 @@ class Packages:
         # Replace the original package with the product archive.
         Path(self._pkg_build_directory.parent / self._pkg_file_name).unlink()
         Path(self._pkg_build_directory.parent / Path(self._pkg_file_name + ".product")).rename(self._pkg_build_directory.parent / self._pkg_file_name)
-        return True
+
+        return self._sign_pkg()
 
 
     def build(self) -> bool:
