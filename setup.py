@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='macos_pkg_builder',
-    version='1.0.8',
+    version='1.0.9',
     author='RIPEDA',
     author_email='mykola@ripeda.com',
     license='',
