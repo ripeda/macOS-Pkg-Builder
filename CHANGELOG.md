@@ -1,6 +1,7 @@
 # macOS Pkg Builder
 
 ## 1.0.9
+- CI: Switch to `svenstaro/upload-release-action@v2`
 
 ## 1.0.8
 - Add support for signing distribution archive
