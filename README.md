@@ -14,9 +14,9 @@ pip3 install macos-pkg-builder
 
 Sample invocation:
 ```py
-import macos_pkg_builder
+from macos_pkg_builder import Packages
 
-pkg_obj = macos_pkg_builder.Packages(
+pkg_obj = Packages(
     pkg_output="Sample.pkg",
     pkg_bundle_id="com.myapp.installer",
     pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
@@ -27,7 +27,7 @@ pkg_obj = macos_pkg_builder.Packages(
     },
 )
 
-pkg_obj.build()
+asset pkg_obj.build() is True
 ```
 
 
