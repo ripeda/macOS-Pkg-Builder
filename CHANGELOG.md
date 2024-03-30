@@ -1,5 +1,8 @@
 # macOS Pkg Builder
 
+## 1.1.1
+- Fix project name typo in `setup.py`
+
 ## 1.1.0
 - CI: Switch to `svenstaro/upload-release-action@v2`
 - Resolve Munki erroring on payload-less packages
