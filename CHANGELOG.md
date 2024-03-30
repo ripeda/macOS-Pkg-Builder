@@ -2,6 +2,12 @@
 
 ## 1.0.9
 - CI: Switch to `svenstaro/upload-release-action@v2`
+- Resolve Munki erroring on payload-less packages
+  - Enforces `--root` parameter for `pkgbuild`
+- Add support for pre/postflight scripts
+  - Configured via new `pkg_preflight_script` and `pkg_postflight_script` parameters
+- Enforce stricter bin pathing for `cp` and `chmod`
+  - Avoids 3rd party tools from being used
 
 ## 1.0.8
 - Add support for signing distribution archive

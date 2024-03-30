@@ -18,6 +18,8 @@ PKGBUILD:     str = "/usr/bin/pkgbuild"
 PRODUCTBUILD: str = "/usr/bin/productbuild"
 PRODUCTSIGN:  str = "/usr/bin/productsign"
 SECURITY:     str = "/usr/bin/security"
+CHMOD:        str = "/bin/chmod"
+CP:           str = "/bin/cp"
 
 
 class Packages:
@@ -30,7 +32,9 @@ class Packages:
                  pkg_allow_relocation:   bool = True,
                  pkg_file_structure:     dict = None,
                  pkg_preinstall_script:   str = None,
+                 pkg_preflight_script:    str = None,
                  pkg_postinstall_script:  str = None,
+                 pkg_postflight_script:   str = None,
                  pkg_script_resources:   list = None,
                  pkg_signing_identity:    str = None,
                  pkg_as_distribution:    bool = False,
@@ -89,7 +93,9 @@ class Packages:
         self._pkg_output             = pkg_output
         self._pkg_file_structure     = pkg_file_structure
         self._pkg_preinstall_script  = pkg_preinstall_script
+        self._pkg_preflight_script   = pkg_preflight_script
         self._pkg_postinstall_script = pkg_postinstall_script
+        self._pkg_postflight_script  = pkg_postflight_script
         self._pkg_file_name          = Path(self._pkg_output).name
         self._pkg_allow_relocation   = pkg_allow_relocation
         self._pkg_script_resources   = pkg_script_resources
@@ -110,18 +116,28 @@ class Packages:
 
         if self._pkg_preinstall_script is not None:
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
-            subprocess.run(["cp", self._pkg_preinstall_script, self._pkg_scripts_directory.joinpath("preinstall")])
-            subprocess.run(["chmod", "+x", self._pkg_scripts_directory.joinpath("preinstall")])
+            subprocess.run([CP, self._pkg_preinstall_script, self._pkg_scripts_directory.joinpath("preinstall")])
+            subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("preinstall")])
+
+        if self._pkg_preflight_script is not None:
+            self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
+            subprocess.run([CP, self._pkg_preflight_script, self._pkg_scripts_directory.joinpath("preflight")])
+            subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("preflight")])
 
         if self._pkg_postinstall_script is not None:
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
-            subprocess.run(["cp", self._pkg_postinstall_script, self._pkg_scripts_directory.joinpath("postinstall")])
-            subprocess.run(["chmod", "+x", self._pkg_scripts_directory.joinpath("postinstall")])
+            subprocess.run([CP, self._pkg_postinstall_script, self._pkg_scripts_directory.joinpath("postinstall")])
+            subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("postinstall")])
+
+        if self._pkg_postflight_script is not None:
+            self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
+            subprocess.run([CP, self._pkg_postflight_script, self._pkg_scripts_directory.joinpath("postflight")])
+            subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("postflight")])
 
         if self._pkg_script_resources is not None:
             for resources in self._pkg_script_resources:
-                subprocess.run(["cp", resources, self._pkg_scripts_directory])
-                subprocess.run(["chmod", "+x", self._pkg_scripts_directory.joinpath(Path(resources).name)])
+                subprocess.run([CP, resources, self._pkg_scripts_directory])
+                subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath(Path(resources).name)])
 
 
     def _prepare_file_structure(self) -> None:
@@ -129,10 +145,10 @@ class Packages:
         Adjusts file structure to match pkgbuild requirements.
         """
 
+        self._pkg_build_directory.mkdir(parents=True, exist_ok=True)
+
         if self._pkg_file_structure is None:
             return
-
-        self._pkg_build_directory.mkdir(parents=True, exist_ok=True)
 
         for source, destination in self._pkg_file_structure.items():
             if not Path(source).exists():
@@ -143,7 +159,7 @@ class Packages:
             if not internal_destination.parent.exists():
                 internal_destination.parent.mkdir(parents=True, exist_ok=True)
 
-            subprocess.run(["cp", "-R", source, internal_destination])
+            subprocess.run([CP, "-R", source, internal_destination])
 
 
     def _generate_component_file(self) -> None:
@@ -156,7 +172,6 @@ class Packages:
 
         # Find anything with an Info.plist embedded, needs to be a valid bundle for pkgbuild.
         for source, destination in self._pkg_file_structure.items():
-
             if Path(source, "Contents", "Info.plist").exists():
                 bundle = destination
                 break
@@ -180,14 +195,14 @@ class Packages:
             PKGBUILD,
             "--identifier", self._pkg_project_identifier,
             "--version", self._pkg_project_version,
-            "--install-location", self._pkg_install_location,
+            "--root", self._pkg_build_directory
         ]
 
         if self._pkg_scripts_directory.exists():
             args.extend(["--scripts", self._pkg_scripts_directory])
 
         if self._pkg_file_structure is not None:
-            args.extend(["--root", self._pkg_build_directory])
+            args.extend(["--install-location", self._pkg_install_location])
             if self._pkg_allow_relocation is False:
                 self._generate_component_file()
                 args.extend(["--component-plist", self._pkg_build_directory.parent / "component.plist"])
@@ -316,7 +331,7 @@ class Packages:
         if not Path(self._pkg_output).parent.exists():
             Path(self._pkg_output).mkdir(parents=True, exist_ok=True)
 
-        subprocess.run(["cp", self._pkg_build_directory.parent / self._pkg_file_name, self._pkg_output])
+        subprocess.run([CP, self._pkg_build_directory.parent / self._pkg_file_name, self._pkg_output])
         logging.info(f"Package built: {self._pkg_output}")
         return True
 
