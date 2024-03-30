@@ -35,11 +35,14 @@ Format of `Packages` constructor:
 ```py
 """
     pkg_output:             Path to where the package will be saved.
+                            Required.
 
     pkg_bundle_id:          Bundle ID of the package.
+                            Required.
 
     pkg_version:            Version of the package.
                             Default: 1.0.0
+                            Optional.
 
     pkg_install_location:   Location where the package will be installed.
                             Default: /
@@ -48,6 +51,7 @@ Format of `Packages` constructor:
     pkg_allow_relocation:   Allow the embedded application to be installed where the user has an existing copy (outside expected install location)
                             Requires a valid bundle to be provided in 'pkg_file_structure' (ex. app, plugin, etc.)
                             Default: True
+                            Optional.
 
     pkg_file_structure:     File structure of the package.
                             Configured as a dictionary, where the key is the source file and the value is the destination.
@@ -73,12 +77,17 @@ Format of `Packages` constructor:
     pkg_script_resources:   List of additional scripts to be included in the package.
                             This is primarily for pre/postinstall scripts that need additional resources present next to them.
                             ex. Shipping 'desktoppr' with a wallpaper, and have the postinstall script set the wallpaper.
+                            Default: None
+                            Optional.
 
     pkg_signing_identity:   Signing identity to use when signing the package.
                             If missing, no signing will be performed.
+                            Default: None
+                            Optional.
 
     pkg_as_distribution:    Convert the package to a product archive.
                             Default: False
+                            Optional.
 
     File Structure:
         {
