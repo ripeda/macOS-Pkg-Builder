@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 1.2.0
+
 ## 1.1.1
 - Fix project name typo in `setup.py`
 
