@@ -15,7 +15,7 @@ Library usage:
     >>>     },
     >>> )
 
-    >>> asset pkg_obj.build() is True
+    >>> assert pkg_obj.build() is True
 """
 
 __title__:        str = "macos_pkg_builder"

@@ -27,7 +27,7 @@ pkg_obj = Packages(
     },
 )
 
-asset pkg_obj.build() is True
+assert pkg_obj.build() is True
 ```
 
 
