@@ -58,7 +58,15 @@ Format of `Packages` constructor:
                             Default: None
                             Optional.
 
+    pkg_preflight_script:   Path to the preflight script.
+                            Default: None
+                            Optional.
+
     pkg_postinstall_script: Path to the postinstall script.
+                            Default: None
+                            Optional.
+
+    pkg_postflight_script:  Path to the postflight script.
                             Default: None
                             Optional.
 
