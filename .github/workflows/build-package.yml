@@ -38,6 +38,12 @@ jobs:
       - name: Validate twine
         run: twine check dist/*
 
+      - name: Test Library Installation (py3)
+        run: pip3 install dist/*.whl
+
+      - name: Test Library (py3)
+        run: cd /; python3 -c "import macos_pkg_builder; print(macos_pkg_builder.__version__)"
+
       - name: Upload Wheel Package
         uses: actions/upload-artifact@v2
         with:

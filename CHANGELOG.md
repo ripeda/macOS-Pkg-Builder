@@ -9,6 +9,7 @@
 - Enforce stricter bin pathing for `cp` and `chmod`
   - Avoids 3rd party tools from being used
 - Publish project version via `__version__` attribute
+- Convert project to a package
 
 ## 1.0.8
 - Add support for signing distribution archive
