@@ -23,9 +23,6 @@ jobs:
       - name: Set up Python 3 libraries
         run: pip3 install setuptools wheel twine build
 
-      - name: Validate Library (py3)
-        run: python3 macos_pkg_builder.py
-
       - name: Validate setup.py
         run: python3 setup.py check -m -s
 
@@ -43,6 +40,9 @@ jobs:
 
       - name: Test Library (py3)
         run: cd /; python3 -c "import macos_pkg_builder; print(macos_pkg_builder.__version__)"
+
+      - name: Validate Library (py3)
+        run: python3 Samples/validation.py
 
       - name: Upload Wheel Package
         uses: actions/upload-artifact@v2

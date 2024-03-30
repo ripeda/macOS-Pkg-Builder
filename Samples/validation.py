@@ -3,7 +3,7 @@ validation.py: Validates project
 """
 import logging
 
-from . import Packages
+from macos_pkg_builder import Packages
 
 
 def main():
@@ -48,3 +48,6 @@ def main():
         if test_suite.build() is False:
             logging.info("Package build failed.")
             exit(1)
+
+if __name__ == "__main__":
+    main()
