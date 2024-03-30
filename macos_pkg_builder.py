@@ -13,6 +13,7 @@ import subprocess
 
 from pathlib import Path
 
+__version__ = "1.1.0"
 
 PKGBUILD:     str = "/usr/bin/pkgbuild"
 PRODUCTBUILD: str = "/usr/bin/productbuild"

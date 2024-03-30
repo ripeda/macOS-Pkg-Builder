@@ -1,6 +1,6 @@
 # macOS Pkg Builder
 
-## 1.0.9
+## 1.1.0
 - CI: Switch to `svenstaro/upload-release-action@v2`
 - Resolve Munki erroring on payload-less packages
   - Enforces `--root` parameter for `pkgbuild`
@@ -8,6 +8,7 @@
   - Configured via new `pkg_preflight_script` and `pkg_postflight_script` parameters
 - Enforce stricter bin pathing for `cp` and `chmod`
   - Avoids 3rd party tools from being used
+- Publish project version via `__version__` attribute
 
 ## 1.0.8
 - Add support for signing distribution archive
