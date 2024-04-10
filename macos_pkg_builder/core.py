@@ -6,10 +6,14 @@ macOS Package Builder
 Designed to simplify package creation through native tooling, ex. pkgbuild, productbuild, etc.
 """
 
+
 import logging
-import tempfile
+import markdown
 import plistlib
+import tempfile
 import subprocess
+
+import xml.etree.ElementTree as ET
 
 from pathlib import Path
 
@@ -38,6 +42,8 @@ class Packages:
                  pkg_script_resources:   list = None,
                  pkg_signing_identity:    str = None,
                  pkg_as_distribution:    bool = False,
+                 pkg_readme:              str = None,
+                 pkg_license:             str = None
                 ) -> None:
         """
         pkg_output:             Path to where the package will be saved.
@@ -95,6 +101,14 @@ class Packages:
                                 Default: False
                                 Optional.
 
+        pkg_readme:             Content of the README file as markdown.
+                                Default: None
+                                Optional. Requires 'pkg_as_distribution' to be True.
+
+        pkg_license:            Content of the LICENSE file as markdown.
+                                Default: None
+                                Optional. Requires 'pkg_as_distribution' to be True.
+
         File Structure:
             {
                 # Source: Destination
@@ -118,12 +132,23 @@ class Packages:
         self._pkg_script_resources   = pkg_script_resources
         self._pkg_signing_identity   = pkg_signing_identity
         self._pkg_as_distribution    = pkg_as_distribution
+        self._pkg_readme             = pkg_readme
+        self._pkg_license            = pkg_license
 
-        self._pkg_temp_directory     = tempfile.TemporaryDirectory()
-        self._pkg_temp_directory     = Path(self._pkg_temp_directory.name)
-        self._pkg_build_directory    = Path(self._pkg_temp_directory, "build")
-        self._pkg_scripts_directory  = Path(self._pkg_temp_directory, "scripts")
-        self._pkg_output_directory   = Path(self._pkg_temp_directory, "output")
+        if self._pkg_as_distribution is False and (self._pkg_readme is not None or self._pkg_license is not None):
+            raise Exception("Cannot include a README or LICENSE without using a distribution package.")
+
+        self._pkg_temp_directory      = tempfile.TemporaryDirectory()
+        self._pkg_temp_directory      = Path(self._pkg_temp_directory.name)
+        self._pkg_build_directory     = Path(self._pkg_temp_directory, "build")
+        self._pkg_scripts_directory   = Path(self._pkg_temp_directory, "scripts")
+        self._pkg_output_directory    = Path(self._pkg_temp_directory, "output")
+        self._pkg_resources_directory = Path(self._pkg_temp_directory, "resources")
+
+        self._file_mapping = {
+            self._pkg_readme:  "README.html",
+            self._pkg_license: "LICENSE.html"
+        }
 
 
     def _prepare_scripts(self) -> None:
@@ -177,6 +202,23 @@ class Packages:
                 internal_destination.parent.mkdir(parents=True, exist_ok=True)
 
             subprocess.run([CP, "-R", source, internal_destination])
+
+
+    def _prepare_resources(self) -> None:
+        """
+        Convert content from markdown to HTML, then save it to the resources directory.
+        """
+
+        for file in self._file_mapping:
+            if file is None:
+                continue
+
+            Path(self._pkg_resources_directory).mkdir(parents=True, exist_ok=True)
+
+            with open(self._pkg_resources_directory / self._file_mapping[file], "w") as f:
+                f.write("<!DOCTYPE html>\n<html>\n<head>\n<style>\nbody { font-family: -apple-system; }\n</style>\n</head>\n<body>\n")
+                f.write(markdown.markdown(file))
+                f.write("</body>\n</html>\n")
 
 
     def _generate_component_file(self) -> None:
@@ -304,11 +346,38 @@ class Packages:
         if self._pkg_as_distribution is False:
             return True
 
+        # First, synthesize the product archive.
+        distribution_file = tempfile.NamedTemporaryFile(delete=False)
         args = [
             PRODUCTBUILD,
+            "--synthesize",
             "--package", self._pkg_build_directory.parent / self._pkg_file_name,
+            distribution_file.name
+        ]
+
+        result = subprocess.run(args, capture_output=True)
+        if result.returncode != 0:
+            logging.info(result.stderr.decode("utf-8"))
+            return False
+
+        # Insert files into the distribution file.
+        tree = ET.parse(distribution_file.name)
+        root = tree.getroot()
+        for file in self._file_mapping:
+            if file is not None:
+                element_name = self._file_mapping[file].split(".")[0].lower()
+                element = ET.Element(element_name, file=self._file_mapping[file], mimetype="text/html")
+                root.append(element)
+        tree.write(distribution_file.name)
+
+        args = [
+            PRODUCTBUILD,
+            "--distribution", distribution_file.name,
+            "--resources", self._pkg_resources_directory,
+            "--package-path", self._pkg_build_directory.parent,
             self._pkg_build_directory.parent / Path(self._pkg_file_name + ".product")
         ]
+
         result = subprocess.run(args, capture_output=True)
         if result.returncode != 0:
             logging.info(result.stderr.decode("utf-8"))
@@ -335,6 +404,7 @@ class Packages:
 
         self._prepare_scripts()
         self._prepare_file_structure()
+        self._prepare_resources()
         if self._build_pkg() is False:
             logging.info("Package build failed.")
             return False

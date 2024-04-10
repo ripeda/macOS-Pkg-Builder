@@ -1,6 +1,8 @@
 # macOS Pkg Builder
 
 ## 1.2.0
+- Add support for passing README and LICENSE content to the package as markdown
+  - Configured via new `pkg_readme` and `pkg_license` parameters
 
 ## 1.1.1
 - Fix project name typo in `setup.py`

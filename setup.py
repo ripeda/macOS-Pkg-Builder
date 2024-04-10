@@ -35,4 +35,5 @@ setup(
         ],
     },
     py_modules=["macos_pkg_builder"],
+    install_requires=open("requirements.txt", "r").readlines(),
 )

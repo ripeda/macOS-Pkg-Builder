@@ -24,6 +24,8 @@ def main():
             pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
             pkg_postinstall_script="Samples/MyApp/MyPostinstall.sh",
             pkg_as_distribution=True,
+            pkg_readme="# Hello world!\n## This is a sample README file.\n\nEnjoy!",
+            pkg_license="# License\n\nThis is a sample license file.\n\nEnjoy!",
         ),
         Packages(
             pkg_output="Sample-Uninstall.pkg",
