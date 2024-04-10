@@ -89,6 +89,14 @@ Format of `Packages` constructor:
                             Default: False
                             Optional.
 
+    pkg_readme:             Content of the README file as markdown.
+                            Default: None
+                            Optional. Requires 'pkg_as_distribution' to be True.
+
+    pkg_license:            Content of the LICENSE file as markdown.
+                            Default: None
+                            Optional. Requires 'pkg_as_distribution' to be True.
+
     File Structure:
         {
             # Source: Destination
