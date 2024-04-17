@@ -89,6 +89,14 @@ Format of `Packages` constructor:
                             Default: False
                             Optional.
 
+    pkg_title:              Title of the distribution package.
+                            Default: None
+                            Optional. Requires 'pkg_as_distribution' to be True.
+
+    pkg_welcome:            Content of the WELCOME file as markdown.
+                            Default: None
+                            Optional. Requires 'pkg_as_distribution' to be True.
+
     pkg_readme:             Content of the README file as markdown.
                             Default: None
                             Optional. Requires 'pkg_as_distribution' to be True.
@@ -97,12 +105,20 @@ Format of `Packages` constructor:
                             Default: None
                             Optional. Requires 'pkg_as_distribution' to be True.
 
+    pkg_background:         Path to the background image for the distribution package.
+                            Default: None
+                            Optional. Requires 'pkg_as_distribution' to be True.
+
+    pkg_background_dark:    Path to the dark background image for the distribution package.
+                            If not provided, the light background will be used.
+                            Default: None
+                            Optional. Requires 'pkg_as_distribution' to be True.
+
     File Structure:
         {
             # Source: Destination
             "~/Developer/MyApp.app": "/Applications/MyApp.app",
             "~/Developer/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
-
         }
 """
 ```

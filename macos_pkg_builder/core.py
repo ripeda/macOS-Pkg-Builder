@@ -42,8 +42,12 @@ class Packages:
                  pkg_script_resources:   list = None,
                  pkg_signing_identity:    str = None,
                  pkg_as_distribution:    bool = False,
+                 pkg_title:               str = None,
+                 pkg_welcome:             str = None,
                  pkg_readme:              str = None,
-                 pkg_license:             str = None
+                 pkg_license:             str = None,
+                 pkg_background:          str = None,
+                 pkg_background_dark:     str = None,
                 ) -> None:
         """
         pkg_output:             Path to where the package will be saved.
@@ -101,6 +105,14 @@ class Packages:
                                 Default: False
                                 Optional.
 
+        pkg_title:              Title of the distribution package.
+                                Default: None
+                                Optional. Requires 'pkg_as_distribution' to be True.
+
+        pkg_welcome:            Content of the WELCOME file as markdown.
+                                Default: None
+                                Optional. Requires 'pkg_as_distribution' to be True.
+
         pkg_readme:             Content of the README file as markdown.
                                 Default: None
                                 Optional. Requires 'pkg_as_distribution' to be True.
@@ -109,12 +121,20 @@ class Packages:
                                 Default: None
                                 Optional. Requires 'pkg_as_distribution' to be True.
 
+        pkg_background:         Path to the background image for the distribution package.
+                                Default: None
+                                Optional. Requires 'pkg_as_distribution' to be True.
+
+        pkg_background_dark:    Path to the dark background image for the distribution package.
+                                If not provided, the light background will be used.
+                                Default: None
+                                Optional. Requires 'pkg_as_distribution' to be True.
+
         File Structure:
             {
                 # Source: Destination
                 "~/Developer/MyApp.app": "/Applications/MyApp.app",
                 "~/Developer/MyLaunchDaemon.plist": "/Library/LaunchDaemons/com.myapp.plist",
-
             }
         """
 
@@ -132,11 +152,28 @@ class Packages:
         self._pkg_script_resources   = pkg_script_resources
         self._pkg_signing_identity   = pkg_signing_identity
         self._pkg_as_distribution    = pkg_as_distribution
+        self._pkg_title              = pkg_title
+        self._pkg_welcome            = pkg_welcome
         self._pkg_readme             = pkg_readme
         self._pkg_license            = pkg_license
+        self._pkg_background         = pkg_background
+        self._pkg_background_dark    = pkg_background_dark
 
-        if self._pkg_as_distribution is False and (self._pkg_readme is not None or self._pkg_license is not None):
-            raise Exception("Cannot include a README or LICENSE without using a distribution package.")
+        _requires_distribution = [
+            self._pkg_title,
+            self._pkg_welcome,
+            self._pkg_readme,
+            self._pkg_license,
+            self._pkg_background,
+            self._pkg_background_dark
+        ]
+
+        if self._pkg_as_distribution is False and any(_requires_distribution):
+            raise Exception("Distribution files require 'pkg_as_distribution' to be True.")
+
+        # If a dark background is not provided, use the light background.
+        if self._pkg_background is not None and self._pkg_background_dark is None:
+            self._pkg_background_dark = self._pkg_background
 
         self._pkg_temp_directory      = tempfile.TemporaryDirectory()
         self._pkg_temp_directory      = Path(self._pkg_temp_directory.name)
@@ -145,9 +182,23 @@ class Packages:
         self._pkg_output_directory    = Path(self._pkg_temp_directory, "output")
         self._pkg_resources_directory = Path(self._pkg_temp_directory, "resources")
 
-        self._file_mapping = {
+        self._markdown_file_mapping = {
+            self._pkg_welcome: "WELCOME.html",
             self._pkg_readme:  "README.html",
             self._pkg_license: "LICENSE.html"
+        }
+
+        self._background_mapping = {
+            "light": {
+                "property": self._pkg_background,
+                "file": f"BACKGROUND{Path(self._pkg_background).suffix if self._pkg_background is not None else ''}",
+                "label": "background",
+            },
+            "dark": {
+                "property": self._pkg_background_dark,
+                "file": f"BACKGROUND-DARK{Path(self._pkg_background_dark).suffix if self._pkg_background_dark is not None else ''}",
+                "label": "background-darkAqua",
+            }
         }
 
 
@@ -158,26 +209,36 @@ class Packages:
 
         if self._pkg_preinstall_script is not None:
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
+            if not Path(self._pkg_preinstall_script).exists():
+                raise FileNotFoundError(f"Preinstall script not found: {self._pkg_preinstall_script}")
             subprocess.run([CP, self._pkg_preinstall_script, self._pkg_scripts_directory.joinpath("preinstall")])
             subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("preinstall")])
 
         if self._pkg_preflight_script is not None:
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
+            if not Path(self._pkg_preflight_script).exists():
+                raise FileNotFoundError(f"Preflight script not found: {self._pkg_preflight_script}")
             subprocess.run([CP, self._pkg_preflight_script, self._pkg_scripts_directory.joinpath("preflight")])
             subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("preflight")])
 
         if self._pkg_postinstall_script is not None:
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
+            if not Path(self._pkg_postinstall_script).exists():
+                raise FileNotFoundError(f"Postinstall script not found: {self._pkg_postinstall_script}")
             subprocess.run([CP, self._pkg_postinstall_script, self._pkg_scripts_directory.joinpath("postinstall")])
             subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("postinstall")])
 
         if self._pkg_postflight_script is not None:
             self._pkg_scripts_directory.mkdir(parents=True, exist_ok=True)
+            if not Path(self._pkg_postflight_script).exists():
+                raise FileNotFoundError(f"Postflight script not found: {self._pkg_postflight_script}")
             subprocess.run([CP, self._pkg_postflight_script, self._pkg_scripts_directory.joinpath("postflight")])
             subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath("postflight")])
 
         if self._pkg_script_resources is not None:
             for resources in self._pkg_script_resources:
+                if not Path(resources).exists():
+                    raise FileNotFoundError(f"Script resource not found: {resources}")
                 subprocess.run([CP, resources, self._pkg_scripts_directory])
                 subprocess.run([CHMOD, "+x", self._pkg_scripts_directory.joinpath(Path(resources).name)])
 
@@ -194,7 +255,7 @@ class Packages:
 
         for source, destination in self._pkg_file_structure.items():
             if not Path(source).exists():
-                raise Exception(f"Source file does not exist: {source}")
+                raise FileNotFoundError(f"Source file does not exist: {source}")
 
             internal_destination = Path(f"{self._pkg_build_directory}{destination}")
 
@@ -204,18 +265,47 @@ class Packages:
             subprocess.run([CP, "-R", source, internal_destination])
 
 
-    def _prepare_resources(self) -> None:
+    def _prepare_distribution_resources(self) -> None:
+        """
+        Prepare resources for the distribution package.
+        """
+        if self._pkg_as_distribution is False:
+            return
+
+        self._prepare_markdown_resources()
+        self._prepare_background_resources()
+
+
+    def _prepare_background_resources(self) -> None:
+        """
+        Prepare background resources for the distribution package.
+        """
+        # Check if light and dark are the same, if so, only copy one.
+        if self._background_mapping["light"]["property"] == self._background_mapping["dark"]["property"]:
+            self._background_mapping["dark"]["property"] = None
+            self._background_mapping["dark"]["file"] = self._background_mapping["light"]["file"]
+
+        for background in self._background_mapping:
+            if self._background_mapping[background]["property"] is None:
+                continue
+            if not Path(self._background_mapping[background]["property"]).exists():
+                raise FileNotFoundError(f"Background image not found: {self._background_mapping[background]['property']}")
+
+            Path(self._pkg_resources_directory).mkdir(parents=True, exist_ok=True)
+            subprocess.run([CP, self._background_mapping[background]["property"], self._pkg_resources_directory.joinpath(self._background_mapping[background]["file"])])
+
+
+    def _prepare_markdown_resources(self) -> None:
         """
         Convert content from markdown to HTML, then save it to the resources directory.
         """
-
-        for file in self._file_mapping:
+        for file in self._markdown_file_mapping:
             if file is None:
                 continue
 
             Path(self._pkg_resources_directory).mkdir(parents=True, exist_ok=True)
 
-            with open(self._pkg_resources_directory / self._file_mapping[file], "w") as f:
+            with open(self._pkg_resources_directory / self._markdown_file_mapping[file], "w") as f:
                 f.write("<!DOCTYPE html>\n<html>\n<head>\n<style>\nbody { font-family: -apple-system; }\n</style>\n</head>\n<body>\n")
                 f.write(markdown.markdown(file))
                 f.write("</body>\n</html>\n")
@@ -272,6 +362,32 @@ class Packages:
         args.extend([self._pkg_build_directory.parent / self._pkg_file_name])
 
         return args
+
+
+    def _sync_distribution_file(self, input_file: tempfile.NamedTemporaryFile) -> None:
+        """
+        Sync the distribution file with the provided content.
+        """
+        tree = ET.parse(input_file.name)
+        root = tree.getroot()
+
+        if self._pkg_title is not None:
+            element = ET.Element("title")
+            element.text = self._pkg_title
+            root.append(element)
+
+        # Check if light and dark are the same, if so, only copy one.
+        for background in self._background_mapping:
+            element = ET.Element(self._background_mapping[background]["label"], file=self._background_mapping[background]["file"], alignment="bottomleft", scaling="tofit")
+            root.append(element)
+
+        for file in self._markdown_file_mapping:
+            if file is not None:
+                element_name = self._markdown_file_mapping[file].split(".")[0].lower()
+                element = ET.Element(element_name, file=self._markdown_file_mapping[file], mimetype="text/html")
+                root.append(element)
+
+        tree.write(input_file.name)
 
 
     def _build_pkg(self) -> bool:
@@ -360,15 +476,7 @@ class Packages:
             logging.info(result.stderr.decode("utf-8"))
             return False
 
-        # Insert files into the distribution file.
-        tree = ET.parse(distribution_file.name)
-        root = tree.getroot()
-        for file in self._file_mapping:
-            if file is not None:
-                element_name = self._file_mapping[file].split(".")[0].lower()
-                element = ET.Element(element_name, file=self._file_mapping[file], mimetype="text/html")
-                root.append(element)
-        tree.write(distribution_file.name)
+        self._sync_distribution_file(distribution_file)
 
         args = [
             PRODUCTBUILD,
@@ -404,7 +512,7 @@ class Packages:
 
         self._prepare_scripts()
         self._prepare_file_structure()
-        self._prepare_resources()
+        self._prepare_distribution_resources()
         if self._build_pkg() is False:
             logging.info("Package build failed.")
             return False

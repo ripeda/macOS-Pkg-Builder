@@ -1,6 +1,14 @@
 # macOS Pkg Builder
 
 ## 1.2.0
+- Expand distribution type package configuration:
+  - Pass MARKDOWN to configure welcome, readme and licensing in the package
+  - Pass light and dark mode images to configure the package background
+  - Pass title to configure the package title
+    - Header: `Install {title}`
+    - Welcome: `Welcome to the {title} Installer`
+- Add additional FileNotFound error handling for missing resources
+
 - Add support for passing README and LICENSE content to the package as markdown
   - Configured via new `pkg_readme` and `pkg_license` parameters
 

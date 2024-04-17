@@ -24,8 +24,11 @@ def main():
             pkg_preinstall_script="Samples/MyApp/MyPreinstall.sh",
             pkg_postinstall_script="Samples/MyApp/MyPostinstall.sh",
             pkg_as_distribution=True,
-            pkg_readme="# Hello world!\n## This is a sample README file.\n\nEnjoy!",
-            pkg_license="# License\n\nThis is a sample license file.\n\nEnjoy!",
+            pkg_welcome="# Welcome\n\nThis is a sample welcome message written in markdown.",
+            pkg_readme="# Read Me\n\nThis is a sample README written in markdown.",
+            pkg_license="# License\n\nThis is a sample license written in markdown.",
+            pkg_title="RIPEDA's Sample App",
+            pkg_background="Samples/MyApp/MyBackground.png",
         ),
         Packages(
             pkg_output="Sample-Uninstall.pkg",
