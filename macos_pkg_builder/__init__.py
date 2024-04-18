@@ -28,4 +28,4 @@ __status__:       str = "Production/Stable"
 __all__:         list = ["Packages"]
 
 
-from .core import Packages, DistributionPackage, FlatPackage
+from .core import DistributionPackage, FlatPackage, Packages
