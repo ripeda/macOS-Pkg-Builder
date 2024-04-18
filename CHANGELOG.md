@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 1.3.0
+
 ## 1.2.0
 - Expand distribution type package configuration:
   - Pass MARKDOWN to configure welcome, readme and licensing in the package
