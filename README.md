@@ -1,14 +1,16 @@
 # macOS-Pkg-Builder
 
-Python module for creating macOS packages more easily through native tooling (pkgbuild). Primarily developed as an alternative to [WhiteBox's Packages](http://s.sudre.free.fr/Software/Packages/about.html) for easier CI/CD integration.
+Python module for creating macOS packages more easily through native tooling (pkgbuild and productbuild). Primarily developed as an alternative to [WhiteBox's Packages](http://s.sudre.free.fr/Software/Packages/about.html) for easier CI/CD integration.
 
 * [GitHub](https://github.com/ripeda/macOS-Pkg-Builder)
 * [PyPi](https://pypi.org/project/macos-pkg-builder)
 
+
 ## Usage
 
 Installation:
-```
+```bash
+# Requires Python 3.6+ and macOS host with pkgbuild and productbuild available
 pip3 install macos-pkg-builder
 ```
 
@@ -29,6 +31,12 @@ pkg_obj = Packages(
 
 assert pkg_obj.build() is True
 ```
+
+Supported classes:
+* `Packages` - For building single packages, either flat or distribution.
+  * Recommended for most use cases. Internally uses `FlatPackage` and `DistributionPackage` classes.
+* `FlatPackage` - For building flat packages.
+* `DistributionPackage` - For building distribution packages.
 
 
 Format of `Packages` constructor:
@@ -143,7 +151,7 @@ Packages(
     pkg_script_resources=[
         "Samples/MyWallpaperConfigurator/desktoppr",
     ],
-),
+)
 ```
 
 #### Building a simple uninstaller
@@ -154,5 +162,39 @@ Packages(
     pkg_output="Sample-Uninstall.pkg",
     pkg_bundle_id="com.myapp.uninstaller",
     pkg_preinstall_script="Samples/MyUninstaller/MyPreinstall.sh",
+)
+```
+
+#### Building installers with welcome, readme, licensing and background image
+
+Uses the markdown formatting to provide a more polished installer experience with little effort.
+
+Notes:
+* Requires package to be built as a distribution package.
+* Optional `pkg_background` parameter to provide a background image for the distribution package.
+  * Image recommended to be
+  * Optional `pkg_background_dark` parameter to provide a dark mode background image.
+    * If not provided, `pkg_background` will be used for both light and dark mode.
+* Optional `pkg_title` parameter to provide a title for the distribution package.
+  * Configures as follows in the distribution package:
+    * Header: `Install {title}`
+    * Welcome: `Welcome to the {title} Installer`
+* Optional `pkg_welcome`, `pkg_readme` and `pkg_license` parameters to provide markdown content for the respective pages in the distribution package.
+
+```py
+Packages(
+    pkg_output="Sample-Install.pkg",
+    pkg_bundle_id="com.myapp.installer",
+    pkg_file_structure={
+        "Samples/MyApp/MyApp.app": "/Applications/MyApp.app",
+    },
+    pkg_as_distribution=True,
+    pkg_welcome="# Welcome\n\nThis is a sample welcome message written in markdown.",
+    pkg_readme="# Read Me\n\nThis is a sample README written in markdown.",
+    pkg_license="# License\n\nThis is a sample license written in markdown.",
+    pkg_title="RIPEDA's Sample App",
+    pkg_background="Samples/MyApp/MyBackground.png",
 ),
 ```
+
+<img src="Samples/Demos/Markdown-Welcome.png" width="768" />

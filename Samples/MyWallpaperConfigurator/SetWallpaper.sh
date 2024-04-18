@@ -1,14 +1,14 @@
-#!/bin/zsh
+#!/bin/zsh --no-rcs
 
 _runAsUser() {
     local currentUser
     local uid
 
-    currentUser=$( echo "show State:/Users/ConsoleUser" | scutil | awk '/Name :/ { print $3 }' )
-    uid=$(id -u "${currentUser}")
+    currentUser=$( echo "show State:/Users/ConsoleUser" | /usr/sbin/scutil | /usr/bin/awk '/Name :/ { print $3 }' )
+    uid=$(/usr/bin/id -u "${currentUser}")
 
 	if [[ "${currentUser}" != "loginwindow" ]]; then
-		launchctl asuser "$uid" sudo -u "${currentUser}" "$@"
+		/bin/launchctl asuser "$uid" sudo -u "${currentUser}" "$@"
 	else
 		echo "No user logged in, exiting..."
 		exit 1

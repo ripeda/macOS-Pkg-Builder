@@ -1,9 +1,9 @@
-#!/bin/zsh
+#!/bin/zsh --no-rcs
 
 if [ ! -d "/Library/Desktop Pictures/" ]; then
-    mkdir "/Library/Desktop Pictures/"
+    /bin/mkdir "/Library/Desktop Pictures/"
 fi
 
 if [ -f "/Library/Desktop Pictures/Snow Leopard Server.jpg" ]; then
-    rm "/Library/Desktop Pictures/Snow Leopard Server.jpg"
+    /bin/rm "/Library/Desktop Pictures/Snow Leopard Server.jpg"
 fi

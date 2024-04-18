@@ -19,8 +19,8 @@ Library usage:
 """
 
 __title__:        str = "macos_pkg_builder"
-__version__:      str = "1.3.0"
-__description__:  str = "macOS Package Builder Library, wrapping the `pkgbuild` and `productbuild` tools."
+__version__:      str = "2.0.0"
+__description__:  str = "macOS Package Builder Library, wrapping Apple's 'pkgbuild' and 'productbuild' utilities."
 __url__:          str = "https://github.com/ripeda/macOS-Pkg-Builder"
 __author__:       str = "RIPEDA Consulting"
 __author_email__: str = "info@ripeda.com"
@@ -28,4 +28,4 @@ __status__:       str = "Production/Stable"
 __all__:         list = ["Packages"]
 
 
-from .core import Packages
+from .core import Packages, DistributionPackage, FlatPackage
