@@ -52,7 +52,14 @@ setup(
     package_data={
         "macos_pkg_builder": [
             "__init__.py",
-            "core.py"
+            "core.py",
+            "distribution_pkg.py",
+            "flat_pkg.py",
+        ],
+        "macos_pkg_builder.utilities": [
+            "__init__.py",
+            "signing.py",
+            "subprocess_wrapper.py",
         ],
     },
     py_modules=["macos_pkg_builder"],
