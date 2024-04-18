@@ -10,8 +10,8 @@ import logging
 
 from pathlib import Path
 
-from . import FlatPackage
-from . import DistributionPackage
+from .flat_pkg import FlatPackage
+from .distribution_pkg import DistributionPackage
 
 
 class Packages:
