@@ -48,7 +48,7 @@ setup(
     long_description_content_type='text/markdown',
     license='',
     python_requires='>=3.6',
-    packages=find_packages(include=["macos_pkg_builder"]),
+    packages=find_packages(include=["macos_pkg_builder", "macos_pkg_builder.utilities"]),
     package_data={
         "macos_pkg_builder": [
             "__init__.py",
