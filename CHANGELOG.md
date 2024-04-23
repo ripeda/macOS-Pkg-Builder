@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 2.1.0
+
 ## 2.0.0
 - Implement new `FlatPackage` and `DistributionPackage` classes
   - Intended for more advanced package configurations, including bundling multiple PKGs inside a single distribution package
