@@ -2,8 +2,10 @@
 
 ## 2.0.0
 - Implement new `FlatPackage` and `DistributionPackage` classes
-  - Intended for more advanced package configurations, including bundling multiple pkgs inside a single distribution package
+  - Intended for more advanced package configurations, including bundling multiple PKGs inside a single distribution package
 - Implement more robust subprocess logging for errors
+- Implement Copy on Write (COW) for package resources
+  - 20% faster package creation on average
 
 ## 1.2.0
 - Expand distribution type package configuration:
@@ -13,7 +15,6 @@
     - Header: `Install {title}`
     - Welcome: `Welcome to the {title} Installer`
 - Add additional FileNotFound error handling for missing resources
-
 - Add support for passing README and LICENSE content to the package as markdown
   - Configured via new `pkg_readme` and `pkg_license` parameters
 
