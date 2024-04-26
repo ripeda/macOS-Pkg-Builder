@@ -1,6 +1,8 @@
 # macOS Pkg Builder
 
-## 2.1.0
+## 2.0.1
+- Resolve packages embedding an empty pkg at `/`
+  - Regression from 2.0.0
 
 ## 2.0.0
 - Implement new `FlatPackage` and `DistributionPackage` classes

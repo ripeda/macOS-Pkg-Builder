@@ -55,7 +55,7 @@ class FlatPackage:
         self._pkg_scripts_directory   = Path(self._pkg_temp_directory, "scripts")
         self._pkg_output_directory    = Path(self._pkg_temp_directory, "output")
         self._pkg_resources_directory = Path(self._pkg_temp_directory, "resources")
-        self._pkg_temp_output         = Path(self._pkg_build_directory, Path(self._pkg_output).name)
+        self._pkg_temp_output         = Path(self._pkg_temp_directory, Path(self._pkg_output).name)
 
 
 
