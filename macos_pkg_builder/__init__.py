@@ -19,7 +19,7 @@ Library usage:
 """
 
 __title__:        str = "macos_pkg_builder"
-__version__:      str = "2.1.0"
+__version__:      str = "2.0.1"
 __description__:  str = "macOS Package Builder Library, wrapping Apple's 'pkgbuild' and 'productbuild' utilities."
 __url__:          str = "https://github.com/ripeda/macOS-Pkg-Builder"
 __author__:       str = "RIPEDA Consulting"
