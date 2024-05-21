@@ -1,5 +1,8 @@
 # macOS Pkg Builder
 
+## 2.0.2
+- Resolve `open` error on component file generation
+
 ## 2.0.1
 - Resolve packages embedding an empty pkg at `/`
   - Regression from 2.0.0

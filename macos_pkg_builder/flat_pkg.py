@@ -146,7 +146,7 @@ class FlatPackage:
             "RootRelativeBundlePath":    bundle,
         }]
         file = tempfile.NamedTemporaryFile(delete=False)
-        plistlib.dump(contents, file.name.open("wb"))
+        plistlib.dump(contents, Path(file.name).open("wb"))
 
         return Path(file.name)
 
