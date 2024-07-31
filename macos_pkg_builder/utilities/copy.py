@@ -24,7 +24,7 @@ def generate_copy_arguments(source: str, destination: str) -> list:
             _command.insert(1, "-c")
 
     if Path(source).is_dir():
-        _command.insert(1, "-r")
+        _command.insert(1, "-R")
 
     return _command
 
