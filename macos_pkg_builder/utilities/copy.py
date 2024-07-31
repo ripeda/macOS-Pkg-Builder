@@ -85,16 +85,13 @@ class PathAttributes:
 
         # Reference:
         # https://github.com/apple-oss-distributions/xnu/blob/xnu-10063.121.3/bsd/sys/attr.h
-        self.ATTR_BIT_MAP_COUNT    = 0x00000005
-        self.ATTR_VOL_CAPABILITIES = 0x00020000
-        self.VOL_CAP_INT_CLONE     = 0x00010000
-        self.ATTR_VOL_NAME         = 0x00002000
-        self.ATTR_VOL_MOUNTPOINT   = 0x00001000
-        self.ATTR_VOL_INFO         = 0x80000000
+        ATTR_BIT_MAP_COUNT     = 0x00000005
+        ATTR_VOL_CAPABILITIES  = 0x00020000
+        ATTR_VOL_MOUNTPOINT    = 0x00001000
 
         attrList = attrlist_t()
-        attrList.bitmapcount = self.ATTR_BIT_MAP_COUNT
-        attrList.volattr     = self.ATTR_VOL_MOUNTPOINT | self.ATTR_VOL_CAPABILITIES
+        attrList.bitmapcount = ATTR_BIT_MAP_COUNT
+        attrList.volattr     = ATTR_VOL_MOUNTPOINT | ATTR_VOL_CAPABILITIES
 
         volAttrBuf = volattrbuf()
 
@@ -110,11 +107,12 @@ class PathAttributes:
 
         Equivalent to checking for Copy on Write support.
         """
+        VOL_CAP_INT_CLONE = 0x00010000
 
         if not hasattr(self, "_volAttrBuf"):
             return False
 
-        if self._volAttrBuf.volCapabilities & self.VOL_CAP_INT_CLONE:
+        if self._volAttrBuf.volCapabilities & VOL_CAP_INT_CLONE:
             return True
 
         return False
