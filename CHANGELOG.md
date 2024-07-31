@@ -1,5 +1,11 @@
 # macOS Pkg Builder
 
+## 2.1.0
+- Perform volume verification on whether Copy on Write (COW) is available
+  - Resolves crashing on HFS+ volumes.
+- Add automatic detection of source file copying
+  - Resolves crashing when directories are passed to `pkg_script_resources`
+
 ## 2.0.2
 - Resolve `open` error on component file generation
 

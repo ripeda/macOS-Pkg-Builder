@@ -10,12 +10,12 @@ import subprocess
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+from .utilities import copy
 from .utilities.signing import SignPackage
 from .utilities.subprocess_wrapper import SubprocessWrapper, SubprocessErrorLogging
 
 
 PRODUCTBUILD: str = "/usr/bin/productbuild"
-CP:           str = "/bin/cp"
 
 
 class DistributionPackage:
@@ -105,7 +105,7 @@ class DistributionPackage:
                 raise FileNotFoundError(f"Background image not found: {self._background_mapping[background]['property']}")
 
             Path(self._pkg_resources_directory).mkdir(parents=True, exist_ok=True)
-            SubprocessWrapper([CP, "-c", self._background_mapping[background]["property"], self._pkg_resources_directory.joinpath(self._background_mapping[background]["file"])], raise_on_error=True).run()
+            SubprocessWrapper(copy.generate_copy_arguments(self._background_mapping[background]["property"], self._pkg_resources_directory.joinpath(self._background_mapping[background]["file"])), raise_on_error=True).run()
 
 
     def _prepare_distribution_file(self, input_file: tempfile.NamedTemporaryFile) -> None:

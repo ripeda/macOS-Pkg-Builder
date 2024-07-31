@@ -9,13 +9,13 @@ import subprocess
 
 from pathlib import Path
 
+from .utilities import copy
 from .utilities.signing import SignPackage
 from .utilities.subprocess_wrapper import SubprocessWrapper, SubprocessErrorLogging
 
 
 PKGBUILD: str = "/usr/bin/pkgbuild"
 CHMOD:    str = "/bin/chmod"
-CP:       str = "/bin/cp"
 RM:       str = "/bin/rm"
 
 
@@ -82,10 +82,13 @@ class FlatPackage:
             if not _working_directory.exists():
                 _working_directory.mkdir(parents=True, exist_ok=True)
 
+            if Path(path).is_dir():
+                raise IsADirectoryError(f"{script.capitalize()} script is a directory: {path}")
+
             if Path(_working_directory.joinpath(script)).exists():
                 raise FileExistsError(f"Script already exists: {script}")
 
-            SubprocessWrapper([CP, "-c", path, _working_directory.joinpath(script)], raise_on_error=True).run()
+            SubprocessWrapper(copy.generate_copy_arguments(path, _working_directory.joinpath(script)), raise_on_error=True).run()
             SubprocessWrapper([CHMOD, "+x", _working_directory.joinpath(script)], raise_on_error=True).run()
 
         if self._pkg_script_resources is not None:
@@ -99,8 +102,12 @@ class FlatPackage:
                 if Path(_working_directory.joinpath(Path(resources).name)).exists():
                     raise FileExistsError(f"Script resource already exists: {resources}")
 
-                SubprocessWrapper([CP, "-c", resources, _working_directory], raise_on_error=True).run()
-                SubprocessWrapper([CHMOD, "+x", _working_directory.joinpath(Path(resources).name)], raise_on_error=True).run()
+                SubprocessWrapper(copy.generate_copy_arguments(resources, _working_directory), raise_on_error=True).run()
+
+                if Path(resources).is_dir():
+                    SubprocessWrapper([CHMOD, "-R", "+x", _working_directory.joinpath(Path(resources).name)], raise_on_error=True).run()
+                else:
+                    SubprocessWrapper([CHMOD, "+x", _working_directory.joinpath(Path(resources).name)], raise_on_error=True).run()
 
 
     def _prepare_file_structure(self) -> None:
@@ -120,7 +127,7 @@ class FlatPackage:
             if not internal_destination.parent.exists():
                 internal_destination.parent.mkdir(parents=True, exist_ok=True)
 
-            SubprocessWrapper([CP, "-cR", source, internal_destination], raise_on_error=True).run()
+            SubprocessWrapper(copy.generate_copy_arguments(source, internal_destination), raise_on_error=True).run()
 
 
     def _generate_component_file(self) -> Path:
@@ -215,7 +222,7 @@ class FlatPackage:
             if SignPackage(self._pkg_temp_output, self._pkg_signing_identity).sign() is False:
                 return False
 
-        SubprocessWrapper([CP, "-c", self._pkg_temp_output, self._pkg_output], raise_on_error=True).run()
+        SubprocessWrapper(copy.generate_copy_arguments(self._pkg_temp_output, self._pkg_output), raise_on_error=True).run()
 
         logging.info(f"Flat Package built: {self._pkg_output}")
 
