@@ -126,8 +126,9 @@ class PathAttributes:
         if not hasattr(self, "_volAttrBuf"):
             return ""
 
-        mount_point = (ctypes.c_char * self._volAttrBuf.mountPoint.attr_length)()
-        mount_point_ptr = ctypes.cast(ctypes.addressof(self._volAttrBuf.mountPoint) + self._volAttrBuf.mountPoint.attr_dataoffset, ctypes.POINTER(ctypes.c_char))
-        mount_point.value = mount_point_ptr.contents.value
+        mount_point_ptr = ctypes.cast(
+            ctypes.addressof(self._volAttrBuf.mountPoint) + self._volAttrBuf.mountPoint.attr_dataoffset,
+            ctypes.POINTER(ctypes.c_char * self._volAttrBuf.mountPoint.attr_length)
+        )
 
-        return mount_point.value.decode()
+        return mount_point_ptr.contents.value.decode()
