@@ -26,7 +26,7 @@ __author__:       str = "RIPEDA Consulting"
 __author_email__: str = "info@ripeda.com"
 __status__:       str = "Production/Stable"
 __license__:      str = "BSD 3-Clause License"
-__all__:         list = ["Packages"]
+__all__:         list = ["Packages", "DistributionPackage", "FlatPackage"]
 
 
 from .core import DistributionPackage, FlatPackage, Packages

@@ -1,6 +1,7 @@
 # macOS Pkg Builder
 
 ## 2.3.0
+- Fix missing `FlatPackage` and `DistributionPackage` class declaration in `__all__` attribute
 
 ## 2.2.0
 - Perform volume verification on whether Copy on Write (COW) is available
