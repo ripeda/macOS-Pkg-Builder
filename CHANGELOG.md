@@ -1,6 +1,8 @@
 # macOS Pkg Builder
 
-## 2.1.0
+## 2.3.0
+
+## 2.2.0
 - Perform volume verification on whether Copy on Write (COW) is available
   - Resolves crashing on HFS+ volumes.
 - Add automatic detection of source file copying
