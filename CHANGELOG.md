@@ -5,6 +5,7 @@
   - Resolves crashing on HFS+ volumes.
 - Add automatic detection of source file copying
   - Resolves crashing when directories are passed to `pkg_script_resources`
+- Set BSD 3-Clause License
 
 ## 2.0.2
 - Resolve `open` error on component file generation

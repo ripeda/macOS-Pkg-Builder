@@ -25,6 +25,7 @@ __url__:          str = "https://github.com/ripeda/macOS-Pkg-Builder"
 __author__:       str = "RIPEDA Consulting"
 __author_email__: str = "info@ripeda.com"
 __status__:       str = "Production/Stable"
+__license__:      str = "BSD 3-Clause License"
 __all__:         list = ["Packages"]
 
 
