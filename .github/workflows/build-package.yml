@@ -26,31 +26,28 @@ jobs:
       - name: Validate setup.py
         run: python3 setup.py check -m -s
 
-      - name: Build Package (py3)
-        run: python3 -m build --wheel
+      - name: Build Distributions
+        run: python3 -m build
 
-      - name: Test Package (py3)
-        run: python3 setup.py test
-
-      - name: Validate twine
+      - name: Validate Distributions
         run: twine check dist/*
 
-      - name: Test Library Installation (py3)
+      - name: Test Wheel Installation
         run: pip3 install dist/*.whl
 
-      - name: Test Library (py3)
+      - name: Test Wheel Usage
         run: cd /; python3 -c "import macos_pkg_builder; print(macos_pkg_builder.__version__)"
 
-      - name: Validate Library (py3)
+      - name: Validate Library
         run: python3 Samples/validation.py
 
-      - name: Upload Wheel Package
+      - name: Upload Wheel Distribution to Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: macos_pkg_builder.whl
           path: dist/*.whl
 
-      - name: Upload Package to Release
+      - name: Upload Distributions to Release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
@@ -59,7 +56,7 @@ jobs:
           tag: ${{ github.ref }}
           file_glob: true
 
-      - name: Publish PyPI Package
+      - name: Publish Distributions to PyPI
         if: github.event_name == 'release'
         env:
           TWINE_USERNAME: __token__
