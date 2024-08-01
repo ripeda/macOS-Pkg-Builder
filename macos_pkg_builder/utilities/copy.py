@@ -7,6 +7,14 @@ import ctypes
 from pathlib import Path
 
 
+def can_copy_on_write(source: str, destination: str) -> bool:
+    """
+    Check if Copy on Write is supported between source and destination
+    """
+    source_obj = PathAttributes(source)
+    return source_obj.mount_point() == PathAttributes(str(Path(destination).parent)).mount_point() and source_obj.supports_clonefile()
+
+
 def generate_copy_arguments(source: str, destination: str) -> list:
     """
     Generate performant '/bin/cp' arguments for macOS
@@ -18,10 +26,8 @@ def generate_copy_arguments(source: str, destination: str) -> list:
         raise FileNotFoundError(f"Destination directory not found: {destination}")
 
     # Check if Copy on Write is supported.
-    source_obj = PathAttributes(source)
-    if source_obj.mount_point() == PathAttributes(str(Path(destination).parent)).mount_point():
-        if source_obj.supports_clonefile():
-            _command.insert(1, "-c")
+    if can_copy_on_write(source, destination):
+        _command.insert(1, "-c")
 
     if Path(source).is_dir():
         _command.insert(1, "-R")
