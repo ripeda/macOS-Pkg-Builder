@@ -1,5 +1,7 @@
 # macOS Pkg Builder
 
+## 2.4.0
+
 ## 2.3.0
 - Fix missing `FlatPackage` and `DistributionPackage` class declaration in `__all__` attribute
 - Publish source distribution to PyPi and GitHub
