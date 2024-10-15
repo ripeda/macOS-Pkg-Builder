@@ -4,6 +4,7 @@
 - Fix missing `FlatPackage` and `DistributionPackage` class declaration in `__all__` attribute
 - Publish source distribution to PyPi and GitHub
 - Remove deprecated `python3 setup.py test` from CI
+- Strip Quarantine attributes from scripts and files during package creation
 
 ## 2.2.0
 - Perform volume verification on whether Copy on Write (COW) is available

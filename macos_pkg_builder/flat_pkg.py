@@ -15,6 +15,7 @@ from .utilities.subprocess_wrapper import SubprocessWrapper, SubprocessErrorLogg
 
 
 PKGBUILD: str = "/usr/bin/pkgbuild"
+XATTR:    str = "/usr/bin/xattr"
 CHMOD:    str = "/bin/chmod"
 RM:       str = "/bin/rm"
 
@@ -90,6 +91,7 @@ class FlatPackage:
 
             SubprocessWrapper(copy.generate_copy_arguments(path, _working_directory.joinpath(script)), raise_on_error=True).run()
             SubprocessWrapper([CHMOD, "+x", _working_directory.joinpath(script)], raise_on_error=True).run()
+            SubprocessWrapper([XATTR, "-c", "com.apple.quarantine", _working_directory.joinpath(script)], raise_on_error=True).run()
 
         if self._pkg_script_resources is not None:
             for resources in self._pkg_script_resources:
@@ -106,8 +108,10 @@ class FlatPackage:
 
                 if Path(resources).is_dir():
                     SubprocessWrapper([CHMOD, "-R", "+x", _working_directory.joinpath(Path(resources).name)], raise_on_error=True).run()
+                    SubprocessWrapper([XATTR, "-cr", "com.apple.quarantine", _working_directory.joinpath(Path(resources).name)], raise_on_error=True).run()
                 else:
                     SubprocessWrapper([CHMOD, "+x", _working_directory.joinpath(Path(resources).name)], raise_on_error=True).run()
+                    SubprocessWrapper([XATTR, "-c", "com.apple.quarantine", _working_directory.joinpath(Path(resources).name)], raise_on_error=True).run()
 
 
     def _prepare_file_structure(self) -> None:
@@ -128,6 +132,7 @@ class FlatPackage:
                 internal_destination.parent.mkdir(parents=True, exist_ok=True)
 
             SubprocessWrapper(copy.generate_copy_arguments(source, internal_destination), raise_on_error=True).run()
+            SubprocessWrapper([XATTR, "-cr", "com.apple.quarantine", internal_destination], raise_on_error=True).run()
 
 
     def _generate_component_file(self) -> Path:
