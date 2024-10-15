@@ -13,10 +13,10 @@ jobs:
     env:
       branch: ${{ github.ref }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set Python 3
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
@@ -42,7 +42,7 @@ jobs:
         run: python3 Samples/validation.py
 
       - name: Upload Wheel Distribution to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: macos_pkg_builder.whl
           path: dist/*.whl
